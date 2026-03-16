@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{url_for('home.static',filename='style.css')}}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <title>Modern Dashboard</title>
+
+</head>
+
+<body>
+<div class="messageshow">
+  {% with messages = get_flashed_messages(with_categories = true) %}
+
+  {% if messages %}
+
+    {% for category, message in messages %}
+      <div class="alert alert-{{category}} alert-dismissible fade show" role="alert">
+        {{message}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+
+      <script>
+        setTimeout(() => {
+          window.location.href = "{{ url_for('home.showHome') }}";
+        }, 3000);
+      </script>
+    {% endfor %}
+
+  {% endif %}
+
+  {% endwith %}
+
+  </div>
+</div>
+  <div class="container-fluid">
+
+    <div class="row">
+
+      <!-- SIDEBAR -->
+
+      <div class="col-md-2 sidebar">
+
+        <h4>Admin Panel</h4>
+
+        <a href="#">Dashboard</a>
+        <a href="#">Users</a>
+        <a href="#">Reports</a>
+        <a href="#">Settings</a>
+
+      </div>
+
+
+      <!-- CONTENT -->
+
+      <div class="col-md-10 content">
+
+        <h2 class="mb-4">User Management</h2>
+
+        <button class="add-btn mb-2" data-bs-toggle="modal" data-bs-target="#userModal">➕ Add User</button>
+
+
+        <!-- FORM -->
+        <form action="{{url_for('home.submitData')}}" method="POST" enctype="multipart/form-data">
+          <div class="modal fade" id="userModal" tabindex="-1">
+
+            <div class="modal-dialog modal-md">
+
+              <div class="modal-content">
+
+                <div class="modal-header">
+                  <h5 class="modal-title">Add User</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+
+
+                  <div class="col-md-12 mb-3">
+                    <label>Name</label>
+                    <input type="text" class="form-control" name="userName">
+                  </div>
+
+                  <div class="col-md-12 mb-3">
+                    <label>Email</label>
+                    <input type="email" class="form-control" name="userEmail">
+                  </div>
+
+                  <div class="col-md-12 mb-3">
+                    <label>Age</label>
+                    <input type="number" class="form-control" name="userAge">
+                  </div>
+                  
+                  <div class="col-md-12 mb-3">
+                    <label>Upload Image</label>
+                    <input type="file" class="form-control" name="image" accept="image/*">
+                  </div>
+
+
+                </div>
+
+                <div class="modal-footer">
+                  <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button class="btn btn-success">Submit</button>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+        </form>
+
+        <!-- TABLE -->
+
+        <div class="table-card">
+
+          <h5>User List</h5>
+
+          <table class="table table-hover mt-3">
+
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Age</th>
+                 <th>Image</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {% for u in user %}
+              <tr>
+                <td>{{loop.index}}</td>
+                <td>{{u[1]}}</td>
+                <td>{{u[2]}}</td>
+                <td>{{u[3]}}</td>
+                <td><img src="{{url_for('static',filename='uploads/'+ u[4] )}}" alt="" style="width: 40px; height:30px"></td>
+                <td>
+                  
+                  
+                  
+                    <button class="btn btn-sm btn-primary" onclick="updateRow(this)">Edit</button>
+                 
+                  <form action="{{ url_for('home.deleteRow') }}" method="post" style="display: inline;">
+                    <input type="text" name="userEmail" value="{{u[2]}}" hidden>
+                    <button class="btn btn-sm btn-danger">Delete</button>
+                  </form>
+              </tr>
+              {% endfor %}
+
+           
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{url_for('home.static',filename='script.js')}}"></script>
+  <script>
+   function updateRow(button){
+    let row = button.closest("tr");
+    let cells = row.getElementsByTagName("td");
+    
+    let userName = cells[1].innerText;
+    let userEmail = cells[2].innerText;
+    let userAge = cells[3].innerText; 
+    
+    // Flask का URL यहाँ रेंडर होगा
+    let targetUrl = "{{ url_for('home.updateData') }}";
+    
+    // डेटा को URL क्वेरी स्ट्रिंग में जोड़ें
+    let finalUrl = `${targetUrl}?name=${encodeURIComponent(userName)}&email=${encodeURIComponent(userEmail)}&age=${userAge}`;
+
+    // अब पेज बदलें
+    window.location.href = finalUrl;
+}
+  </script>
+</body>
+
+</html>
