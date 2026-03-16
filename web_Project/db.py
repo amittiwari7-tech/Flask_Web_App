@@ -2,25 +2,34 @@ import os
 import pymysql
 from dotenv import load_dotenv
 
-# 1. सबसे पहले यह लाइन लिखें (Bridge तैयार करें)
-pymysql.install_as_MySQLdb()
+load_dotenv()
 
-# 2. अब Flask-MySQLdb इम्पोर्ट करें (अब यह एरर नहीं देगा)
-from flask_mysqldb import MySQL 
+# हम Flask-MySQLdb का इस्तेमाल नहीं करेंगे क्योंकि वह इंस्टॉल नहीं हो रही
+# हम सीधा PyMySQL का इस्तेमाल करेंगे जो बहुत आसान है
+class MySQL:
+    def __init__(self, app=None):
+        self.app = app
+        if app is not None:
+            self.init_app(app)
 
-load_dotenv() 
+    def init_app(self, app):
+        self.app = app
 
+    @property
+    def connection(self):
+        # यह लाइन डेटाबेस से सीधा कनेक्शन बनाएगी
+        return pymysql.connect(
+            host=os.getenv('dataBase_URL'),
+            user=os.getenv('database_User'),
+            password=os.getenv('database_Password'),
+            database=os.getenv('database_Name'),
+            port=int(os.getenv('database_Port', 3306)),
+            cursorclass=pymysql.cursors.DictCursor # इससे डेटा Dictionary के रूप में मिलेगा
+        )
+
+# ऑब्जेक्ट बनाएँ
 mysql = MySQL()
 
 def init_db(app):
-    app.config['MYSQL_HOST'] = os.getenv('dataBase_URL')
-    app.config['MYSQL_USER'] = os.getenv('database_User')
-    app.config['MYSQL_PASSWORD'] = os.getenv('database_Password')
-    app.config['MYSQL_DB'] = os.getenv('database_Name')
-    
-    # Port को सुरक्षित रूप से हैंडल करें
-    db_port = os.getenv('database_Port', 3306)
-    app.config['MYSQL_PORT'] = int(db_port)
-
-    mysql.init_app(app) 
+    mysql.init_app(app)
     return mysql

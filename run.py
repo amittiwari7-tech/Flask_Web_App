@@ -10,10 +10,13 @@ app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = "jgfhgjhdfgjhgjbkDHKHJK4545WDHJ"  
 jwt = JWTManager(app)  
 app.secret_key = secrets.token_hex(16)  
-init_db(app)
+
+# db को इनिशियलाइज़ करें
+mysql = init_db(app)
+
 app.register_blueprint(auth_bp)
 app.register_blueprint(home_bp)
 
 if __name__ == '__main__':
+    # Render के लिए पोर्ट और होस्ट सेट करना अच्छा रहता है
     app.run(debug=True)
-    
