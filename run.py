@@ -1,9 +1,10 @@
+import os
+import secrets
 from flask import Flask
+from flask_jwt_extended import JWTManager
 from web_Project.db import init_db
 from web_Project.auth.routes import auth_bp
 from web_Project.home.routes import home_bp
-import secrets
-from flask_jwt_extended import JWTManager
 
 app = Flask(__name__)
 
@@ -18,5 +19,6 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(home_bp)
 
 if __name__ == '__main__':
-    # Render के लिए पोर्ट और होस्ट सेट करना अच्छा रहता है
-    app.run(debug=True)
+    # Render को '0.0.0.0' होस्ट और 'PORT' एन्वायरमेंट वेरिएबल की ज़रूरत होती है
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=False) # प्रोडक्शन में debug=False रखें
